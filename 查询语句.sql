@@ -213,11 +213,13 @@ SELECT
     COUNT(DISTINCT oi.order_item_id) AS '购买量',
     ROUND(COUNT(DISTINCT oi.order_item_id) * 100.0 / COUNT(DISTINCT pv.view_id), 2) AS '转化率(%)'
 FROM products p
-JOIN pageviews pv ON p.product_id = pv.product_id
+LEFT JOIN pageviews pv ON p.product_id = pv.product_id
 LEFT JOIN order_items oi ON p.product_id = oi.product_id
 GROUP BY p.product_id, p.product_name
 HAVING COUNT(DISTINCT oi.order_item_id) = 0
-   OR COUNT(DISTINCT oi.order_item_id) * 3 < COUNT(DISTINCT pv.view_id);
+   OR (COUNT(DISTINCT pv.view_id) > 0 AND 
+       COUNT(DISTINCT oi.order_item_id) * 1.0 / COUNT(DISTINCT pv.view_id) < 0.33) -- 转化率低于33%
+ORDER BY COUNT(DISTINCT pv.view_id) DESC;
 /* 查询5结果说明：
 专门筛选高浏览量但低购买量的商品
 */
