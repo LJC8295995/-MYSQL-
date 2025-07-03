@@ -94,12 +94,12 @@ INSERT INTO sessions (session_id, user_id, start_time) VALUES
 INSERT INTO pageviews (session_id, page_url, view_time, product_id) VALUES
 -- 为咖啡机(商品6)增加10次浏览但无购买
 ('sess_low1', '/product/6', '2023-07-04 11:22:10', 6),
-('sess_low1', '/product/6', '2023-07-04 11:23:05', 6), -- 同一用户重复浏览
+('sess_low1', '/product/6', '2023-07-04 11:23:05', 6),
 ('sess_low2', '/product/6', '2023-07-04 15:31:20', 6),
 ('sess_low2', '/product/6', '2023-07-04 15:32:15', 6),
 ('sess_low3', '/product/6', '2023-07-04 19:42:30', 6),
 ('sess_low3', '/product/6', '2023-07-04 19:43:25', 6),
-('sess04', '/product/6', '2023-07-02 19:45:00', 6),   -- 原有会话新增浏览
+('sess04', '/product/6', '2023-07-02 19:45:00', 6),  
 ('sess05', '/product/6', '2023-07-02 21:15:00', 6),
 ('sess06', '/product/6', '2023-07-03 10:35:00', 6),
 ('sess07', '/product/6', '2023-07-03 15:45:00', 6),
@@ -126,7 +126,7 @@ INSERT INTO orders (user_id, order_time, total_amount) VALUES
 (6, '2023-07-03 15:50:00', 59.00),
 (2, '2023-07-03 20:25:00', 939.00);
 
--- 新增订单明细数据（仅包含智能手机1次购买）
+-- 订单明细数据
 INSERT INTO order_items (order_id, product_id, quantity, item_price) VALUES
 (1, 1, 1, 2999.00),    -- 智能手机X (商品1)
 (2, 4, 1, 399.00),     -- 运动鞋 (商品4)
@@ -187,7 +187,7 @@ ORDER BY COUNT(DISTINCT s.session_id) DESC;
 /* 查询3结果说明：
 按小时分析用户访问和购买行为
 20-21点时间段访问量和订单量最高
-14点和15点访问量中等但转化率为0（可能是用户比价时段）
+14点和15点访问量中等但转化率为0
 */
 
 -- 查询4: 复购用户分析
@@ -218,8 +218,6 @@ LEFT JOIN order_items oi ON p.product_id = oi.product_id
 GROUP BY p.product_id, p.product_name;
 /* 查询5结果说明：
 专门筛选高浏览量但低购买量的商品
-商品6(咖啡机)有1次浏览但0次购买
-商品5(笔记本电脑)有2次浏览但只有1次购买
 */
 
 -- 查询6: 数据质量检查（寻找异常数据）
@@ -236,6 +234,5 @@ WHERE oi.quantity <= 0
    OR (oi.quantity * oi.item_price) <= 0;
 
 /* 查询6结果说明：
-检查订单明细中的异常数据
-发现一个购买数量为0的商品，明显是数据异常
+检查订单明细中的异常数据、
 */
