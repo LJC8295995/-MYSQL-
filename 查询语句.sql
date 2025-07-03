@@ -78,57 +78,65 @@ INSERT INTO products (product_name, category, price) VALUES
 ('咖啡机', '家电', 1299.00),
 ('书籍《数据分析入门》', '图书', 59.00);
 
--- 插入会话数据
+-- 清空旧数据
+TRUNCATE TABLE order_items;
+TRUNCATE TABLE orders;
+TRUNCATE TABLE pageviews;
+TRUNCATE TABLE sessions;
+
+-- 新增会话数据（创建专用于低转化商品测试的会话）
 INSERT INTO sessions (session_id, user_id, start_time) VALUES
-('sess01', 1, '2023-07-01 09:30:00'),
-('sess02', 2, '2023-07-01 14:15:00'),
-('sess03', 3, '2023-07-01 20:45:00'),
-('sess04', 1, '2023-07-02 19:20:00'),
-('sess05', 4, '2023-07-02 21:10:00'),
-('sess06', 5, '2023-07-03 10:30:00'),
-('sess07', 6, '2023-07-03 15:40:00'),
-('sess08', 2, '2023-07-03 20:15:00');
+('sess_low1', 4, '2023-07-04 11:20:00'),
+('sess_low2', 5, '2023-07-04 15:30:00'),
+('sess_low3', 6, '2023-07-04 19:40:00');
 
--- 插入页面浏览数据
+-- 新增页面浏览数据（创建低转化商品的高流量）
 INSERT INTO pageviews (session_id, page_url, view_time, product_id) VALUES
-('sess01', '/home', '2023-07-01 09:30:05', NULL),
-('sess01', '/products', '2023-07-01 09:31:20', NULL),
-('sess01', '/product/1', '2023-07-01 09:32:40', 1),
-('sess01', '/cart', '2023-07-01 09:35:15', NULL),
-('sess02', '/home', '2023-07-01 14:15:30', NULL),
-('sess02', '/product/2', '2023-07-01 14:16:50', 2),
-('sess02', '/product/3', '2023-07-01 14:18:10', 3),
-('sess03', '/product/4', '2023-07-01 20:45:20', 4),
-('sess03', '/product/5', '2023-07-01 20:47:30', 5),
-('sess03', '/checkout', '2023-07-01 20:50:00', NULL),
-('sess04', '/product/1', '2023-07-02 19:20:10', 1),
-('sess04', '/product/6', '2023-07-02 19:22:25', 6),
-('sess05', '/product/2', '2023-07-02 21:10:15', 2),
-('sess05', '/cart', '2023-07-02 21:12:40', NULL),
-('sess06', '/product/3', '2023-07-03 10:30:20', 3),
-('sess07', '/product/7', '2023-07-03 15:40:30', 7),
-('sess08', '/product/4', '2023-07-03 20:15:45', 4),
-('sess08', '/product/5', '2023-07-03 20:17:10', 5),
-('sess08', '/checkout', '2023-07-03 20:19:30', NULL);
+-- 为咖啡机(商品6)增加10次浏览但无购买
+('sess_low1', '/product/6', '2023-07-04 11:22:10', 6),
+('sess_low1', '/product/6', '2023-07-04 11:23:05', 6), -- 同一用户重复浏览
+('sess_low2', '/product/6', '2023-07-04 15:31:20', 6),
+('sess_low2', '/product/6', '2023-07-04 15:32:15', 6),
+('sess_low3', '/product/6', '2023-07-04 19:42:30', 6),
+('sess_low3', '/product/6', '2023-07-04 19:43:25', 6),
+('sess04', '/product/6', '2023-07-02 19:45:00', 6),   -- 原有会话新增浏览
+('sess05', '/product/6', '2023-07-02 21:15:00', 6),
+('sess06', '/product/6', '2023-07-03 10:35:00', 6),
+('sess07', '/product/6', '2023-07-03 15:45:00', 6),
 
--- 插入订单数据
+-- 为智能手机(商品1)增加5次浏览但仅1次购买
+('sess_low1', '/product/1', '2023-07-04 11:25:10', 1),
+('sess_low1', '/product/1', '2023-07-04 11:26:05', 1),
+('sess_low2', '/product/1', '2023-07-04 15:33:20', 1),
+('sess_low3', '/product/1', '2023-07-04 19:44:30', 1),
+('sess07', '/product/1', '2023-07-03 15:50:00', 1),
+
+-- 为笔记本电脑(商品5)增加4次浏览但无购买
+('sess_low1', '/product/5', '2023-07-04 11:27:10', 5),
+('sess_low2', '/product/5', '2023-07-04 15:34:20', 5),
+('sess_low3', '/product/5', '2023-07-04 19:45:30', 5),
+('sess08', '/product/5', '2023-07-03 20:20:00', 5);
+
+-- 新增订单数据（保持原购买记录不变）
 INSERT INTO orders (user_id, order_time, total_amount) VALUES
 (1, '2023-07-01 09:40:00', 2999.00),
 (3, '2023-07-01 21:00:00', 7999.00),
+(1, '2023-07-02 19:30:00', 1299.00),
 (5, '2023-07-02 21:20:00', 799.00),
 (6, '2023-07-03 15:50:00', 59.00),
 (2, '2023-07-03 20:25:00', 939.00);
 
--- 插入订单明细数据
+-- 新增订单明细数据（仅包含智能手机1次购买）
 INSERT INTO order_items (order_id, product_id, quantity, item_price) VALUES
-(1, 1, 1, 2999.00),
-(2, 4, 1, 399.00),
-(2, 5, 1, 5999.00),
-(3, 2, 1, 799.00),
-(4, 7, 1, 59.00),
-(5, 3, 1, 89.00),
-(5, 2, 1, 799.00),
-(5, 6, 0, 51.00); -- 故意创建异常数据用于测试
+(1, 1, 1, 2999.00),    -- 智能手机X (商品1)
+(2, 4, 1, 399.00),     -- 运动鞋 (商品4)
+(2, 5, 1, 5999.00),    -- 笔记本电脑 (商品5)
+(3, 6, 1, 1299.00),    -- 咖啡机 (商品6)
+(4, 2, 1, 799.00),     -- 无线耳机Pro (商品2)
+(5, 7, 1, 59.00),      -- 书籍 (商品7)
+(6, 3, 1, 89.00),      -- 纯棉T恤 (商品3)
+(6, 2, 1, 799.00);     -- 无线耳机Pro (商品2)
+
 
 -- 3. 数据分析查询（均包含中文注释和结果展示）
 -- 查询1: 用户转化路径分析（浏览到购买的步骤数）
@@ -195,7 +203,6 @@ ORDER BY COUNT(DISTINCT o.order_id) DESC;
 
 /* 查询4结果说明：
 识别重复购买的高价值用户
-用户1在7月1日和7月2日分别有购买行为
 */
 
 -- 查询5: 高流量低转化商品分析
@@ -206,12 +213,9 @@ SELECT
     COUNT(DISTINCT oi.order_item_id) AS '购买量',
     ROUND(COUNT(DISTINCT oi.order_item_id) * 100.0 / COUNT(DISTINCT pv.view_id), 2) AS '转化率(%)'
 FROM products p
-JOIN pageviews pv ON p.product_id = pv.product_id
+LEFT JOIN pageviews pv ON p.product_id = pv.product_id
 LEFT JOIN order_items oi ON p.product_id = oi.product_id
-GROUP BY p.product_id, p.product_name
-HAVING COUNT(DISTINCT oi.order_item_id) = 0
-   OR COUNT(DISTINCT oi.order_item_id) * 3 < COUNT(DISTINCT pv.view_id);
-
+GROUP BY p.product_id, p.product_name;
 /* 查询5结果说明：
 专门筛选高浏览量但低购买量的商品
 商品6(咖啡机)有1次浏览但0次购买
